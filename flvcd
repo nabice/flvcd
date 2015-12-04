@@ -1,0 +1,26 @@
+#!/bin/bash
+export DISPLAY=:0 
+PLAYLIST="/tmp/vlcplay.$RANDOM"
+
+/home/nabice/src/wechat/plugin/3
+if [ -z "$@" ]; then
+	exit
+fi
+
+html="`curl 'http://www.flvcd.com/parse.php' --get --data-urlencode "kw=$@" --data-urlencode "flag=one" --data-urlencode "format=super"`"
+#avdGgggg_name=$(echo "$html"|grep 'catch\|createSc\|\w+' -oP|cut -d'|' -f3)
+#avdGggggtt_name=$(echo "$html"|grep 'avd\|document\|\w+' -oP|cut -d'|' -f3)
+#avdGgggg=$(echo "$html"|grep "var $avdGgggg_name='\w+'" -oP|sed "s/var $avdGgggg_name\=\|'//g")
+#avdGggggtt=$(echo "$html"|grep "var $avdGggggtt_name=\d+" -Po |sed "s/var $avdGggggtt_name\=/ /g")
+avdGgggg=$(echo "$html"|grep '^eval' | grep -oP '\w{32}')
+avdGggggtt=$(echo "$html"|grep '^eval' | grep -oP '\d{10,}')
+seed=$(echo "$html"|grep "\\|for\\|\d+" -Po|grep "\d+" -Po)
+gocode=$(/home/nabice/src/flvcd_web/createSc.js $avdGgggg $avdGggggtt $seed)
+curl 'http://www.flvcd.com/parse.php' --get \
+        --data-urlencode "kw=$@" \
+        --data-urlencode "flag=one" \
+        --data-urlencode "format=super" -b "go=$gocode;avdGggggtt=$avdGggggtt"|
+    iconv -f gbk -t utf8|grep "下载地址" |
+    grep '<a href="[^"]*' -o|cut -d'"' -f2 > "$PLAYLIST" || exit
+vlc -f --no-video-title-show --play-and-exit "$PLAYLIST" -I rc --rc-host=localhost:50022
+rm -f "$PLAYLIST"
