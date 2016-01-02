@@ -14,7 +14,7 @@ html="`curl 'http://www.flvcd.com/parse.php' --get --data-urlencode "kw=$@" --da
 #avdGggggtt=$(echo "$html"|grep "var $avdGggggtt_name=\d+" -Po |sed "s/var $avdGggggtt_name\=/ /g")
 avdGgggg=$(echo "$html"|grep '^eval' | grep -oP '\w{32}')
 avdGggggtt=$(echo "$html"|grep '^eval' | grep -oP '\d{10,}')
-avdGggggtt=$(( avdGggggt+10000 ))
+avdGggggtt=$(( avdGggggtt-30000 ))
 seed=$(echo "$html"|grep "\\|for\\|\d+" -Po|grep "\d+" -Po)
 gocode=$(/home/nabice/src/flvcd_web/createSc.js $avdGgggg $avdGggggtt $seed)
 curl 'http://www.flvcd.com/parse.php' --get \
